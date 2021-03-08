@@ -1,0 +1,71 @@
+---
+title: "ResearchGate: Building Significant Token list"
+author: "M MICHEL"
+date: "3/8/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# How to proceed
+
+It's certainly possible to find a relevant list on the web, but it is also possible to build one quite easily with *tidytext* for example.
+
+Below is an example of that. And few modern packages come handy:
+
+- install.packages("tidyverse")
+- install.packages("tidytext")
+- install.packages("lexicon")
+
+
+# 1. Find a list
+
+There are some lists in the lexicon package:
+
+```{r lexicon}
+
+ library(lexicon)
+
+ head(key_corporate_social_responsibility$token,10)
+
+```
+
+
+# 2. An example of fast and simple construction:
+
+
+```{r significantToken, echo=TRUE, message=F}
+
+  library(pdftools)
+  library(tidyverse)
+  library(tidytext)
+  
+
+  link <-
+    "https://www.dga.or.th/upload/download/file_cd634d3f094a12a6e57730d750e75c6f.pdf"
+# for example getting one highly quoted paper on Digital Transformation, 
+# Of course, it's possible to choose/find any other sources, and to simply download them manually too.
+  
+  download.file(link, "Digital_Transformation_Strategies.pdf", mode = "wb")
+
+# if the source is already downloaded, the code essentially starts here!!
+  
+  txt <- pdf_text("Digital_Transformation_Strategies.pdf")
+  txt_tibble <- as_tibble(txt) 
+  
+  significantToken <- txt_tibble%>%
+    unnest_tokens(word, value) %>%
+    anti_join(stop_words)%>% 
+# or larger stop words list e.g. sw_fry_1000 from lexicon 
+    count(word) %>%
+    arrange(desc(n)) 
+  
+  significantToken
+  
+```
+
+Hope this helps!
+
